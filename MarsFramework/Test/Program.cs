@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using MarsFramework.Pages;
+using NUnit.Framework;
+using OpenQA.Selenium;
 
 namespace MarsFramework
 {
@@ -8,10 +10,12 @@ namespace MarsFramework
         [Category("Sprint1")]
         class User : Global.Base
         {
-
+            IWebDriver driver;
             [Test]
             public void Test()
             {
+                SignIn signIn = new SignIn();
+                signIn.SignInSteps();
 
 
             }

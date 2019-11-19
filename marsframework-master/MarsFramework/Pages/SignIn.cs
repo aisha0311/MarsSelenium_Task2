@@ -31,7 +31,11 @@ namespace MarsFramework.Pages
 
         internal void LoginSteps()
         {
-
+            SignIntab.Click();
+           Email.SendKeys("mvpstudio.qa@gmail.com");
+           Password.SendKeys("SydneyQa2018");
+            LoginBtn.Click();
+            Thread.sleep(2000);
         }
     }
 }

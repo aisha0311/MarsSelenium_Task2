@@ -1,4 +1,5 @@
 ﻿using Excel;
+using ExcelDataReader;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
@@ -52,23 +53,42 @@ namespace MarsFramework.Global
             private static DataTable ExcelToDataTable(string fileName, string SheetName)
             {
                 // Open file and return as Stream
-                using (System.IO.FileStream stream = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                //using (System.IO.FileStream stream = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                //{
+                //    using (IExcelDataReader excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream))
+                //    {
+                //        excelReader.IsFirstRowAsColumnNames = true;
+
+                //        //Return as dataset
+                //        DataSet result = excelReader.AsDataSet();
+                //        //Get all the tables
+                //        DataTableCollection table = result.Tables;
+
+                //        // store it in data table
+                //        DataTable resultTable = table[SheetName];
+
+                //        //excelReader.Dispose();
+                //        //excelReader.Close();
+                //        // return
+                //        return resultTable;
+                //    }
+                //}
+                // Open file and return as Stream
+                using (var stream = File.Open(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    using (IExcelDataReader excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream))
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
-                        excelReader.IsFirstRowAsColumnNames = true;
-
-                        //Return as dataset
-                        DataSet result = excelReader.AsDataSet();
+                        var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                        {
+                            ConfigureDataTable = (data) => new ExcelDataTableConfiguration()
+                            {
+                                UseHeaderRow = true
+                            }
+                        });
                         //Get all the tables
-                        DataTableCollection table = result.Tables;
-
+                        var table = result.Tables;
                         // store it in data table
-                        DataTable resultTable = table[SheetName];
-
-                        //excelReader.Dispose();
-                        //excelReader.Close();
-                        // return
+                        var resultTable = table[SheetName];
                         return resultTable;
                     }
                 }
@@ -76,25 +96,42 @@ namespace MarsFramework.Global
 
             public static string ReadData(int rowNumber, string columnName)
             {
+                //try
+                //{
+                //    //Retriving Data using LINQ to reduce much of iterations
+
+                //    rowNumber = rowNumber - 1;
+                //    string data = (from colData in dataCol
+                //                   where colData.colName == columnName && colData.rowNumber == rowNumber
+                //                   select colData.colValue).SingleOrDefault();
+
+                //    //var datas = dataCol.Where(x => x.colName == columnName && x.rowNumber == rowNumber).SingleOrDefault().colValue;
+
+
+                //    return data.ToString();
+                //}
+
+                //catch (Exception e)
+                //{
+                //    //Added by Kumar
+                //    Console.WriteLine("Exception occurred in ExcelLib Class ReadData Method!" + Environment.NewLine + e.Message.ToString());
+                //    return null;
+                //}
                 try
                 {
                     //Retriving Data using LINQ to reduce much of iterations
-
                     rowNumber = rowNumber - 1;
-                    string data = (from colData in dataCol
-                                   where colData.colName == columnName && colData.rowNumber == rowNumber
-                                   select colData.colValue).SingleOrDefault();
-
+                    var data = (from colData in DataCol
+                                where (colData.ColName == columnName) && (colData.RowNumber == rowNumber)
+                                select colData.ColValue).SingleOrDefault();
                     //var datas = dataCol.Where(x => x.colName == columnName && x.rowNumber == rowNumber).SingleOrDefault().colValue;
-
-
-                    return data.ToString();
+                    return data;
                 }
-
                 catch (Exception e)
                 {
-                    //Added by Kumar
-                    Console.WriteLine("Exception occurred in ExcelLib Class ReadData Method!" + Environment.NewLine + e.Message.ToString());
+                    // ReSharper disable once LocalizableElement
+                    Console.WriteLine("Exception occurred in ExcelLib Class ReadData Method!" + Environment.NewLine +
+                                      e.Message);
                     return null;
                 }
             }
